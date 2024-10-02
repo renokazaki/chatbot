@@ -1,11 +1,27 @@
+"use client";
+
+import { useState } from "react";
+
 export const SideBar = () => {
+  const [title, setTitle] = useState("");
+
+  const handleSubmitTitle = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    setTitle(""); // 送信後に入力をクリア
+  };
+
   return (
     <div className="">
       <div className="mb-12">
-        <form className="fixed flex justify-start w-1/5 top-0">
+        <form
+          className="fixed flex justify-start w-1/5 top-0"
+          onSubmit={handleSubmitTitle}
+        >
           <input
             className="h-12 w-4/5 py-4 border-double border-4 border-indigo-600"
             placeholder="値を入力"
+            onChange={(e) => setTitle(e.target.value)}
+            value={title}
           />
           <button className="w-8 bg-amber-400 rounded-3xl">↑</button>
         </form>
