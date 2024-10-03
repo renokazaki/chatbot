@@ -1,18 +1,59 @@
 "use client";
+import { useEffect, useState } from "react";
 
-import { useState } from "react";
+//部屋の名前取得用と部屋に登録されているchatの情報を取得するfunction
+import {
+  getRoom,
+  getRoomDescription,
+} from "../../../../utils/supabasefunction";
 
-export const SideBar = () => {
+//タイプ
+import { Room, RoomDescription } from "@/app/types";
+
+interface SideBarProps {
+  setRoomChat: (chatArray: RoomDescription[]) => void; // setRoomChatの型定義を修正
+}
+
+//params : 親コンポーネントの配列set用のuseState
+export const SideBar: React.FC<SideBarProps> = ({ setRoomChat }) => {
+  //入力した値格納用
   const [title, setTitle] = useState("");
+  //room名格納用
+  const [roomName, setRoomName] = useState<Room[]>([]);
 
+  //Room名取得用function
+  const getRoomName = async () => {
+    const texts = await getRoom();
+    if (texts.data) {
+      setRoomName(texts.data);
+    }
+  };
+  //画面表示時にRoom名を表示するため
+  useEffect(() => {
+    getRoomName();
+  }, []);
+
+  //Room内のchatの配列格納用
+  //paramsはroomの名前をクリックしたもののidを受け取る
+  const getChat = async (roomId: number) => {
+    const texts = await getRoomDescription(roomId);
+    if (texts.data) {
+      //親コンポーネントのset用useState使用
+      setRoomChat(texts.data);
+    }
+  };
+
+  //値入力用関数
   const handleSubmitTitle = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setTitle(""); // 送信後に入力をクリア
   };
 
   return (
-    <div className="">
-      <div className="mb-12">
+    <div>
+      {/* Room名入力欄 */}
+
+      <div className="mb-16">
         <form
           className="fixed flex justify-start w-1/5 top-0"
           onSubmit={handleSubmitTitle}
@@ -27,45 +68,18 @@ export const SideBar = () => {
         </form>
       </div>
 
+      {/* Room名表示欄 */}
+
       <div className="flex flex-col items-start ">
-        Center
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">
-          meaaaaaaaaaassage
-        </div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-      </div>
-      <div className="flex flex-col items-start ">
-        Center
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">
-          meaaaaaaaaaassage
-        </div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-      </div>
-      <div className="flex flex-col items-start ">
-        Center
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">
-          meaaaaaaaaaassage
-        </div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-      </div>
-      <div className="flex flex-col items-start ">
-        Center
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">
-          meaaaaaaaaaassage
-        </div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-      </div>
-      <div className="flex flex-col items-start ">
-        Center
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">
-          meaaaaaaaaaassage
-        </div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
-        <div className="p-4 mb-4 bg-slate-500 rounded-xl">message</div>
+        {roomName.map((room) => (
+          <div
+            key={room.id}
+            className="p-4 mb-4 bg-slate-500 rounded-xl"
+            onClick={() => getChat(room.id)} // クリックしたルームのIDを親に渡す
+          >
+            {room.room}
+          </div>
+        ))}
       </div>
     </div>
   );
